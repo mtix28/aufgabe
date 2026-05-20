@@ -1,5 +1,5 @@
 
-# Apt-Wather
+# Apt-Watcher
 
 Save your installed apt packages in a cool database to keep an eye on them.
 
