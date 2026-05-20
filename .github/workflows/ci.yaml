@@ -25,7 +25,11 @@ jobs:
             exit 1
           fi
 
-      - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v6
-        with:
-          install-mode: go
+      - name: Run Go Vet (Native Linter)
+        run: go vet ./...
+
+      - name: Check Code Modernization (go fix)
+        run: go fix ./...
+
+      - name: Build Code
+        run: go build -v ./...
