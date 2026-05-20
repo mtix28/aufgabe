@@ -4,7 +4,7 @@
 Save your installed apt packages in a cool database to keep an eye on them.
 
 
-![Logo](resources/banner.jpg)
+![Logo](resources/banner.png)
 
 
 #
