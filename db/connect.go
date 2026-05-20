@@ -4,30 +4,50 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/spf13/viper"
+
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
+// config for zap logger
 func createLogger() *zap.Logger {
+	encoderConfig := zap.NewProductionEncoderConfig()
+	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+
 	config := zap.Config{
 		Level:    zap.NewAtomicLevelAt(zap.InfoLevel),
 		Encoding: "json",
 		OutputPaths: []string{
 			"logs/logs.txt",
 		},
-		EncoderConfig: zap.NewProductionEncoderConfig(),
+		EncoderConfig: encoderConfig,
 	}
 
 	return zap.Must(config.Build())
 }
 
 func UpdateQuery(query string, amount int) {
+	// create logger
 	logger := createLogger()
 	defer logger.Sync()
 	logger.Info("Application started")
 
-	db, err := sqlx.Connect("postgres", "user=postgres dbname=demo sslmode=disable password=secret host=localhost")
+	//load .env
+	viper.SetConfigFile(".env")
+	viper.ReadInConfig()
+	logger.Info("Loaded .env file")
+
+	user := viper.Get("DB_USER")
+	dbname := viper.Get("DB_NAME")
+	password := viper.Get("DB_PASSWORD")
+	host := viper.Get("DB_HOST")
+	connection_string := fmt.Sprintf("user=%s dbname=%s sslmode=disable password=%s host=%s", user, dbname, password, host)
+	logger.Info("Created connection string")
+
+	db, err := sqlx.Connect("postgres", connection_string)
 	logger.Info("Trying to connect to database")
 	if err != nil {
 		log.Fatalln(err)
