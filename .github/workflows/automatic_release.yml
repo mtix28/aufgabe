@@ -1,0 +1,26 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create Release if from dev
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if git log -1 --pretty=%B | grep -q "from develop"; then
+            TAG="v$(date +'%Y.%m.%d-%H%M')"
+            gh release create "$TAG" --target main --title "Release $TAG" --generate-notes
+          else
+            echo "Kein Merge aus dev. Überspringe."
+          fi
